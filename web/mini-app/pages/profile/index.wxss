@@ -82,6 +82,13 @@
   font-weight: 600;
 }
 
+.profile-makeup-entry {
+  margin-top: 24rpx;
+  height: 88rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
 .profile-skeleton__copy {
   flex: 1;
 }

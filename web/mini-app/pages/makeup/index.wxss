@@ -27,12 +27,14 @@
 }
 
 .makeup-textarea {
+  display: block;
   width: 100%;
   min-height: 180rpx;
   padding: 22rpx 24rpx;
   border: 2rpx solid #dce4ef;
   border-radius: 22rpx;
   background: #f8fbff;
+  box-sizing: border-box;
 }
 
 .makeup-picker {

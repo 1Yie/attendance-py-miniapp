@@ -85,4 +85,10 @@ Page({
       url: '/pages/admin/index',
     })
   },
+
+  handleOpenMakeup() {
+    wx.navigateTo({
+      url: '/pages/makeup/index',
+    })
+  },
 })
