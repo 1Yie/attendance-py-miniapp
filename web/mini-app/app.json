@@ -1,0 +1,55 @@
+{
+  "pages": [
+    "pages/login/index",
+    "pages/index/index",
+    "pages/attendance/index",
+    "pages/review/index",
+    "pages/profile/index",
+    "pages/admin/index",
+    "pages/makeup/index"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationStyle": "custom"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#7d8aa2",
+    "selectedColor": "#ffffff",
+    "backgroundColor": "#0e1828",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "打卡"
+      },
+      {
+        "pagePath": "pages/attendance/index",
+        "text": "考勤"
+      },
+      {
+        "pagePath": "pages/review/index",
+        "text": "审核"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "renderer": "skyline",
+  "rendererOptions": {
+    "skyline": {
+      "defaultDisplayBlock": true,
+      "defaultContentBox": true,
+      "tagNameStyleIsolation": "legacy",
+      "disableABTest": true,
+      "sdkVersionBegin": "3.0.0",
+      "sdkVersionEnd": "15.255.255"
+    }
+  },
+  "componentFramework": "glass-easel",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

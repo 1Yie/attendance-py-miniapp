@@ -1,0 +1,82 @@
+.makeup-page {
+  background: linear-gradient(180deg, #eef3f9 0%, #e9f0f8 100%);
+}
+
+.makeup-card {
+  margin-bottom: 24rpx;
+}
+
+.makeup-card__header {
+  margin-bottom: 20rpx;
+}
+
+.makeup-field-gap {
+  margin-top: 18rpx;
+}
+
+.makeup-type-group {
+  display: flex;
+  gap: 24rpx;
+  padding: 12rpx 0;
+}
+
+.makeup-type-option {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.makeup-textarea {
+  width: 100%;
+  min-height: 180rpx;
+  padding: 22rpx 24rpx;
+  border: 2rpx solid #dce4ef;
+  border-radius: 22rpx;
+  background: #f8fbff;
+}
+
+.makeup-picker {
+  display: flex;
+  align-items: center;
+}
+
+.makeup-submit {
+  margin-top: 24rpx;
+  height: 88rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.makeup-record {
+  padding: 24rpx 0;
+  border-bottom: 2rpx solid #eef2f7;
+}
+
+.makeup-record:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.makeup-record__top {
+  gap: 20rpx;
+}
+
+.makeup-record__title {
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.makeup-record__meta {
+  display: block;
+  margin-top: 10rpx;
+  color: #6c7a92;
+  font-size: 24rpx;
+}
+
+.makeup-record__reason {
+  display: block;
+  margin-top: 10rpx;
+  color: #172033;
+  font-size: 25rpx;
+  line-height: 1.6;
+}

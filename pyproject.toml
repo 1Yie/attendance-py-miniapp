@@ -1,0 +1,12 @@
+[project]
+name = "flask-api-work"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "flask>=3.1.3",
+    "flask-migrate>=4.1.0",
+    "flask-sqlalchemy>=3.1.1",
+    "pymysql>=1.1.1",
+    "python-dotenv>=1.2.2",
+    "werkzeug>=3.1.8",
+]

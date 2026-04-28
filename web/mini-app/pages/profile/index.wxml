@@ -1,0 +1,89 @@
+<view class="page-shell profile-page">
+  <navigation-bar title="我的" back="{{false}}" color="#172033" background="#eef3f9"></navigation-bar>
+
+  <scroll-view class="page-scroll" scroll-y type="list">
+    <view class="page-body" wx:if="{{loading}}">
+      <view class="card profile-card">
+        <view class="profile-card__header">
+          <view class="skeleton-block skeleton-avatar"></view>
+          <view class="skeleton-stack profile-skeleton__copy">
+            <view class="skeleton-block skeleton-text skeleton-text--md"></view>
+            <view class="skeleton-block skeleton-pill"></view>
+          </view>
+        </view>
+
+        <view class="profile-info">
+          <view class="profile-info__item" wx:for="{{[1,2,3]}}" wx:key="*this">
+            <view class="skeleton-block skeleton-text skeleton-text--sm"></view>
+            <view class="skeleton-block skeleton-text skeleton-text--lg"></view>
+          </view>
+        </view>
+      </view>
+
+      <view class="card profile-card">
+        <view class="row-between">
+          <view class="skeleton-block skeleton-text skeleton-text--sm"></view>
+          <view class="skeleton-block skeleton-text skeleton-text--sm"></view>
+        </view>
+
+        <view class="profile-service">
+          <view class="skeleton-block skeleton-text skeleton-text--sm"></view>
+          <view class="skeleton-block skeleton-text skeleton-text--xl"></view>
+          <view class="skeleton-block skeleton-text skeleton-text--lg"></view>
+        </view>
+      </view>
+
+      <view class="skeleton-block profile-skeleton__button"></view>
+    </view>
+
+    <view class="page-body" wx:else>
+      <view class="card profile-card" wx:if="{{user}}">
+        <view class="profile-card__header">
+          <view class="profile-avatar">{{user.avatarText}}</view>
+          <view>
+            <text class="profile-card__name">{{user.name}}</text>
+            <text class="profile-card__role">{{user.roleLabel}}</text>
+          </view>
+        </view>
+
+        <view class="profile-info">
+          <view class="profile-info__item">
+            <text class="label">手机号</text>
+            <text class="value">{{user.phone}}</text>
+          </view>
+          <view class="profile-info__item">
+            <text class="label">职位</text>
+            <text class="value">{{user.position}}</text>
+          </view>
+          <view class="profile-info__item">
+            <text class="label">最近登录</text>
+            <text class="value">{{user.lastLoginAtText}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="card profile-card" wx:if="{{user && user.role === 'admin'}}">
+        <view class="row-between">
+          <text class="section-title">服务信息</text>
+          <text class="section-subtitle">当前环境</text>
+        </view>
+
+        <view class="profile-service">
+          <text class="label">接口地址</text>
+          <text class="profile-service__value">{{apiBaseUrl}}</text>
+        </view>
+      </view>
+
+      <view class="card profile-card" wx:if="{{user && user.role === 'admin'}}">
+        <view class="row-between">
+          <text class="section-title">管理功能</text>
+          <text class="section-subtitle">设置与账户</text>
+        </view>
+
+        <button class="btn-primary profile-admin-entry" bindtap="handleOpenAdmin">打开管理页面</button>
+      </view>
+
+      <button class="btn-secondary profile-logout" bindtap="handleLogout">退出登录</button>
+    </view>
+  </scroll-view>
+</view>

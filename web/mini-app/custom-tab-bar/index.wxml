@@ -1,0 +1,12 @@
+<view class="tab-bar safe-bottom">
+  <button
+    wx:for="{{tabs}}"
+    wx:key="key"
+    class="button-reset tab-item {{selected === item.key ? 'tab-item--active' : ''}}"
+    data-key="{{item.key}}"
+    data-path="{{item.path}}"
+    bindtap="handleSwitch"
+  >
+    <text class="tab-item__label">{{item.text}}</text>
+  </button>
+</view>

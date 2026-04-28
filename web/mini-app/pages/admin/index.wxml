@@ -1,0 +1,126 @@
+<view class="page-shell admin-page">
+  <navigation-bar title="管理设置" back="{{true}}" color="#172033" background="#eef3f9"></navigation-bar>
+
+  <scroll-view class="page-scroll" scroll-y type="list">
+    <view class="page-body" wx:if="{{loading}}">
+      <view class="card admin-card skeleton-stack">
+        <view class="skeleton-block skeleton-text skeleton-text--sm"></view>
+        <view class="skeleton-block skeleton-text skeleton-text--xl"></view>
+        <view class="skeleton-block skeleton-text skeleton-text--xl"></view>
+        <view class="skeleton-block skeleton-text skeleton-text--lg"></view>
+      </view>
+      <view class="card admin-card skeleton-stack">
+        <view class="skeleton-block skeleton-text skeleton-text--sm"></view>
+        <view class="skeleton-block skeleton-text skeleton-text--xl"></view>
+        <view class="skeleton-block skeleton-text skeleton-text--xl"></view>
+        <view class="skeleton-block skeleton-text skeleton-text--xl"></view>
+      </view>
+    </view>
+
+    <view class="page-body" wx:else>
+      <view class="card admin-card">
+        <view class="row-between admin-card__header">
+          <text class="section-title">考勤设置</text>
+          <!-- <text class="section-subtitle">管理员可修改</text> -->
+        </view>
+
+        <view class="admin-form-grid">
+          <view class="field">
+            <text class="label">上班时间</text>
+            <input class="input" data-field="work_start" value="{{configForm.work_start}}" bindinput="handleConfigInput" placeholder="09:00" />
+          </view>
+          <view class="field">
+            <text class="label">下班时间</text>
+            <input class="input" data-field="work_end" value="{{configForm.work_end}}" bindinput="handleConfigInput" placeholder="18:00" />
+          </view>
+          <view class="field">
+            <text class="label">上班打卡次数</text>
+            <input class="input" type="number" data-field="check_in_limit" value="{{configForm.check_in_limit}}" bindinput="handleConfigInput" />
+          </view>
+          <view class="field">
+            <text class="label">下班打卡次数</text>
+            <input class="input" type="number" data-field="check_out_limit" value="{{configForm.check_out_limit}}" bindinput="handleConfigInput" />
+          </view>
+          <view class="field admin-form-grid__full">
+            <text class="label">每月补卡次数</text>
+            <input class="input" type="number" data-field="makeup_limit_per_month" value="{{configForm.makeup_limit_per_month}}" bindinput="handleConfigInput" />
+          </view>
+        </view>
+
+        <view class="admin-switch-row">
+          <view>
+            <text class="value">补卡需要审核</text>
+            <!-- <text class="section-subtitle">关闭后补卡会自动通过</text> -->
+          </view>
+          <switch checked="{{configForm.makeup_requires_approval}}" bindchange="handleApprovalSwitch" color="#2255ff"></switch>
+        </view>
+
+        <button class="btn-primary admin-card__button" loading="{{savingConfig}}" bindtap="handleSaveConfig">保存考勤设置</button>
+      </view>
+
+      <view class="card admin-card">
+        <view class="row-between admin-card__header">
+          <text class="section-title">{{userForm.id ? '编辑账户' : '添加账户'}}</text>
+          <!-- <text class="section-subtitle">创建员工或管理员</text> -->
+        </view>
+
+        <view class="field admin-field-gap">
+          <text class="label">手机号</text>
+          <input class="input" type="number" maxlength="11" data-field="phone" value="{{userForm.phone}}" bindinput="handleUserInput" placeholder="请输入手机号" />
+        </view>
+        <view class="field admin-field-gap">
+          <text class="label">姓名</text>
+          <input class="input" data-field="name" value="{{userForm.name}}" bindinput="handleUserInput" placeholder="请输入姓名" />
+        </view>
+        <view class="field admin-field-gap">
+          <text class="label">职位</text>
+          <input class="input" data-field="position" value="{{userForm.position}}" bindinput="handleUserInput" placeholder="请输入职位" />
+        </view>
+        <view class="field admin-field-gap">
+          <text class="label">密码</text>
+          <input class="input" password="{{true}}" data-field="password" value="{{userForm.password}}" bindinput="handleUserInput" placeholder="{{userForm.id ? '留空表示不修改密码' : '至少 8 位密码'}}" />
+        </view>
+
+        <view class="field admin-field-gap">
+          <text class="label">角色</text>
+          <radio-group class="admin-role-group" bindchange="handleRoleChange">
+            <label class="admin-role-option">
+              <radio value="employee" checked="{{userForm.role === 'employee'}}" color="#2255ff" />
+              <text>员工</text>
+            </label>
+            <label class="admin-role-option">
+              <radio value="admin" checked="{{userForm.role === 'admin'}}" color="#2255ff" />
+              <text>管理员</text>
+            </label>
+          </radio-group>
+        </view>
+
+        <view class="admin-action-row">
+          <button class="btn-primary admin-card__button admin-card__button-half" loading="{{creatingUser}}" bindtap="handleCreateUser">{{userForm.id ? '保存账户' : '创建账号'}}</button>
+          <button wx:if="{{userForm.id}}" class="btn-secondary admin-card__button admin-card__button-half" bindtap="handleResetUserForm">取消编辑</button>
+        </view>
+      </view>
+
+      <view class="card admin-card">
+        <view class="row-between admin-card__header">
+          <text class="section-title">账户列表</text>
+          <text class="section-subtitle">{{users.length}} 个账号</text>
+        </view>
+
+        <view wx:if="{{users.length}}">
+          <view class="admin-user-item" wx:for="{{users}}" wx:key="id">
+            <view class="admin-user-item__info">
+              <text class="admin-user-item__name">{{item.name}}</text>
+              <text class="admin-user-item__meta">{{item.phone}} · {{item.position}}</text>
+            </view>
+            <view class="admin-user-item__actions">
+              <view class="badge {{item.role === 'admin' ? 'badge-warning' : 'badge-neutral'}}">{{item.role === 'admin' ? '管理员' : '员工'}}</view>
+              <view class="admin-user-item__edit" data-user="{{item}}" bindtap="handleEditUser">编辑</view>
+            </view>
+          </view>
+        </view>
+        <view wx:else class="empty-state">暂时还没有账号。</view>
+      </view>
+    </view>
+  </scroll-view>
+</view>

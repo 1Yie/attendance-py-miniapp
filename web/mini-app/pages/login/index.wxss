@@ -1,0 +1,59 @@
+.login-page {
+  background:
+    radial-gradient(circle at top left, rgba(34, 85, 255, 0.16), transparent 36%),
+    linear-gradient(180deg, #f3f8ff 0%, #eef3f9 54%, #eef3f9 100%);
+}
+
+.login-hero {
+  padding: 32rpx 30rpx 8rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.login-hero__eyebrow {
+  color: #2255ff;
+  font-size: 24rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  text-transform: uppercase;
+}
+
+.login-hero__title {
+  font-size: 54rpx;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.login-hero__desc {
+  color: #5f6f87;
+  font-size: 26rpx;
+  line-height: 1.7;
+}
+
+.login-page__body {
+  padding-top: 28rpx;
+}
+
+.login-card {
+  padding-top: 34rpx;
+}
+
+.login-card__field-gap {
+  margin-top: 26rpx;
+}
+
+.login-card__button {
+  margin-top: 40rpx;
+  height: 92rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.login-card__hint {
+  display: block;
+  margin-top: 22rpx;
+  color: #7d8aa2;
+  font-size: 24rpx;
+  line-height: 1.7;
+}

@@ -1,0 +1,84 @@
+<view class="page-shell makeup-page">
+  <navigation-bar title="补卡申请" back="{{true}}" color="#172033" background="#eef3f9"></navigation-bar>
+
+  <scroll-view class="page-scroll" scroll-y type="list">
+    <view class="page-body" wx:if="{{loading}}">
+      <view class="card makeup-card skeleton-stack">
+        <view class="skeleton-block skeleton-text skeleton-text--sm"></view>
+        <view class="skeleton-block skeleton-text skeleton-text--xl"></view>
+        <view class="skeleton-block skeleton-text skeleton-text--xl"></view>
+      </view>
+      <view class="card makeup-card skeleton-stack">
+        <view class="skeleton-block skeleton-text skeleton-text--sm"></view>
+        <view class="skeleton-block skeleton-text skeleton-text--xl"></view>
+        <view class="skeleton-block skeleton-text skeleton-text--lg"></view>
+      </view>
+    </view>
+
+    <view class="page-body" wx:else>
+      <view class="card makeup-card">
+        <view class="row-between makeup-card__header">
+          <text class="section-title">发起补卡</text>
+          <text class="section-subtitle">提交后等待审核</text>
+        </view>
+
+        <view class="field makeup-field-gap">
+          <text class="label">补卡类型</text>
+          <radio-group class="makeup-type-group" bindchange="handleTypeChange">
+            <label class="makeup-type-option">
+              <radio value="check_in" checked="{{form.record_type === 'check_in'}}" color="#2255ff" />
+              <text>上班打卡</text>
+            </label>
+            <label class="makeup-type-option">
+              <radio value="check_out" checked="{{form.record_type === 'check_out'}}" color="#2255ff" />
+              <text>下班打卡</text>
+            </label>
+          </radio-group>
+        </view>
+
+        <view class="field makeup-field-gap">
+          <text class="label">补卡日期</text>
+          <picker mode="date" value="{{form.target_date}}" bindchange="handleDateChange">
+            <view class="input makeup-picker">{{form.target_date}}</view>
+          </picker>
+        </view>
+
+        <view class="field makeup-field-gap">
+          <text class="label">补卡时间</text>
+          <picker mode="time" value="{{form.target_time}}" bindchange="handleTimeChange">
+            <view class="input makeup-picker">{{form.target_time}}</view>
+          </picker>
+        </view>
+
+        <view class="field makeup-field-gap">
+          <text class="label">补卡原因</text>
+          <textarea class="makeup-textarea" maxlength="200" value="{{form.reason}}" bindinput="handleReasonInput" placeholder="请输入补卡原因"></textarea>
+        </view>
+
+        <button class="btn-primary makeup-submit" loading="{{submitting}}" bindtap="handleSubmit">提交补卡申请</button>
+      </view>
+
+      <view class="card makeup-card">
+        <view class="row-between makeup-card__header">
+          <text class="section-title">我的补卡记录</text>
+          <text class="section-subtitle">{{requests.length}} 条</text>
+        </view>
+
+        <view wx:if="{{requests.length}}">
+          <view class="makeup-record" wx:for="{{requests}}" wx:key="id">
+            <view class="row-between makeup-record__top">
+              <text class="makeup-record__title">{{item.recordTypeLabel}}</text>
+              <view class="badge badge-{{item.statusTone}}">{{item.statusLabel}}</view>
+            </view>
+            <text class="makeup-record__meta">补卡时间：{{item.targetTimeText}}</text>
+            <text class="makeup-record__meta">提交时间：{{item.createdAtText}}</text>
+            <text class="makeup-record__reason">原因：{{item.reason}}</text>
+            <text class="makeup-record__meta" wx:if="{{item.reviewedAtText !== '--'}}">审核时间：{{item.reviewedAtText}}</text>
+            <text class="makeup-record__meta" wx:if="{{item.reviewer_comment}}">审核备注：{{item.reviewer_comment}}</text>
+          </view>
+        </view>
+        <view wx:else class="empty-state">还没有补卡申请记录。</view>
+      </view>
+    </view>
+  </scroll-view>
+</view>

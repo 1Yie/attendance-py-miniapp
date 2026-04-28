@@ -1,0 +1,135 @@
+<view class="page-shell clock-page">
+  <navigation-bar title="打卡" back="{{false}}" color="#172033" background="#eef3f9"></navigation-bar>
+
+  <scroll-view class="page-scroll" scroll-y type="list">
+    <view class="page-body" wx:if="{{loading}}">
+      <view class="card clock-hero shadow-soft">
+        <view class="row-between">
+          <view class="skeleton-stack clock-skeleton__hero-copy">
+            <view class="skeleton-block skeleton-text skeleton-text--md"></view>
+            <view class="skeleton-block skeleton-text skeleton-text--sm"></view>
+          </view>
+          <view class="skeleton-block skeleton-pill"></view>
+        </view>
+
+        <view class="skeleton-block skeleton-text clock-skeleton__date"></view>
+        <view class="skeleton-block clock-skeleton__time"></view>
+
+        <view class="clock-config">
+          <view class="clock-config__item skeleton-stack">
+            <view class="skeleton-block skeleton-text skeleton-text--sm"></view>
+            <view class="skeleton-block skeleton-text skeleton-text--md"></view>
+          </view>
+          <view class="clock-config__divider"></view>
+          <view class="clock-config__item skeleton-stack">
+            <view class="skeleton-block skeleton-text skeleton-text--sm"></view>
+            <view class="skeleton-block skeleton-text skeleton-text--md"></view>
+          </view>
+        </view>
+      </view>
+
+      <view class="clock-actions">
+        <view class="skeleton-block skeleton-button"></view>
+        <view class="skeleton-block skeleton-button"></view>
+      </view>
+
+      <view class="card clock-section">
+        <view class="row-between">
+          <view class="skeleton-block skeleton-text skeleton-text--sm"></view>
+          <view class="skeleton-block skeleton-text skeleton-text--sm"></view>
+        </view>
+
+        <view class="clock-record" wx:for="{{[1,2,3]}}" wx:key="*this">
+          <view class="skeleton-stack clock-skeleton__record-copy">
+            <view class="skeleton-block skeleton-text skeleton-text--md"></view>
+            <view class="skeleton-block skeleton-text skeleton-text--sm"></view>
+          </view>
+          <view class="skeleton-block skeleton-pill"></view>
+        </view>
+      </view>
+    </view>
+
+    <view class="page-body" wx:else>
+      <view class="card clock-hero shadow-soft">
+        <view class="row-between">
+          <view>
+            <text class="clock-hero__title">{{user ? user.name : '未登录用户'}}</text>
+            <text class="clock-hero__desc">{{user ? user.position : '请先登录'}}</text>
+          </view>
+          <view class="clock-hero__tag">今日考勤</view>
+        </view>
+
+        <text class="clock-hero__date">{{currentDateText}}</text>
+        <text class="clock-hero__time">{{currentTimeText}}</text>
+
+        <view class="clock-config" wx:if="{{config}}">
+          <view class="clock-config__item">
+            <text class="label">上班时间</text>
+            <text class="value">{{config.work_start}}</text>
+          </view>
+          <view class="clock-config__divider"></view>
+          <view class="clock-config__item">
+            <text class="label">下班时间</text>
+            <text class="value">{{config.work_end}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="clock-actions">
+        <button
+          class="btn-primary clock-actions__button"
+          loading="{{submittingType === 'check_in'}}"
+          data-type="check_in"
+          bindtap="handlePunch"
+        >
+          上班打卡
+        </button>
+        <button
+          class="btn-secondary clock-actions__button clock-actions__button-light"
+          loading="{{submittingType === 'check_out'}}"
+          data-type="check_out"
+          bindtap="handlePunch"
+        >
+          下班打卡
+        </button>
+      </view>
+
+      <view class="card clock-section clock-shortcut-card">
+        <view class="row-between">
+          <view>
+            <text class="section-title">补卡申请</text>
+     
+          </view>
+          <button class="btn-secondary clock-shortcut-card__button" bindtap="handleOpenMakeup">去补卡</button>
+        </view>
+      </view>
+
+      <view class="card clock-section">
+        <view class="row-between">
+          <text class="section-title">今日记录</text>
+          <text class="section-subtitle">{{todayRecords.length}} 条</text>
+        </view>
+
+        <view wx:if="{{todayRecords.length}}">
+          <view class="clock-record" wx:for="{{todayRecords}}" wx:key="id">
+            <view>
+              <text class="clock-record__title">{{item.recordTypeLabel}}</text>
+              <text class="clock-record__meta">{{item.checkTimeText}}</text>
+            </view>
+            <view class="badge badge-{{item.statusTone}}">{{item.statusLabel}}</view>
+          </view>
+        </view>
+        <view wx:else class="empty-state">今天还没有打卡记录，点击上方按钮开始。</view>
+      </view>
+
+      <view class="card clock-section" wx:if="{{latestRecord}}">
+        <view class="row-between">
+          <text class="section-title">最近一次打卡</text>
+          <view class="badge badge-{{latestRecord.statusTone}}">{{latestRecord.statusLabel}}</view>
+        </view>
+        <text class="clock-latest__title">{{latestRecord.recordTypeLabel}}</text>
+        <text class="clock-latest__meta">{{latestRecord.checkTimeText}}</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>

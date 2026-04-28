@@ -1,0 +1,121 @@
+<view class="page-shell attendance-page">
+  <navigation-bar title="考勤" back="{{false}}" color="#172033" background="#eef3f9"></navigation-bar>
+
+  <scroll-view class="page-scroll" scroll-y type="list">
+    <view class="page-body" wx:if="{{loading}}">
+      <view class="card attendance-calendar-card">
+        <view class="row-between attendance-calendar__header">
+          <view class="skeleton-block attendance-skeleton__arrow"></view>
+          <view class="skeleton-block skeleton-text skeleton-text--md"></view>
+          <view class="skeleton-block attendance-skeleton__arrow"></view>
+        </view>
+
+        <view class="attendance-week-row">
+          <text class="attendance-week-label" wx:for="{{weekDays}}" wx:key="*this">{{item}}</text>
+        </view>
+
+        <view class="attendance-calendar-grid">
+          <view class="attendance-day attendance-day--skeleton" wx:for="{{[1,2,3,4,5,6,7,8,9,10,11,12,13,14]}}" wx:key="*this">
+            <view class="skeleton-block attendance-skeleton__day-number"></view>
+            <view class="skeleton-block attendance-skeleton__dot"></view>
+            <view class="skeleton-block attendance-skeleton__label"></view>
+          </view>
+        </view>
+      </view>
+
+      <view class="card attendance-detail-card">
+        <view class="row-between">
+          <view class="skeleton-block skeleton-text skeleton-text--sm"></view>
+          <view class="skeleton-block skeleton-text skeleton-text--sm"></view>
+        </view>
+
+        <view class="attendance-detail-item" wx:for="{{[1,2,3]}}" wx:key="*this">
+          <view class="attendance-detail-item__main">
+            <view class="row-between attendance-detail-item__top">
+              <view class="skeleton-block skeleton-text skeleton-text--md"></view>
+              <view class="skeleton-block skeleton-pill"></view>
+            </view>
+            <view class="skeleton-block skeleton-text skeleton-text--sm attendance-skeleton__meta"></view>
+            <view class="skeleton-block skeleton-text skeleton-text--lg attendance-skeleton__remark"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="page-body" wx:else>
+      <view class="card attendance-summary-card">
+        <view class="attendance-summary__main">
+          <text class="attendance-summary__label">本月记录</text>
+          <text class="attendance-summary__value">{{stats.total}}</text>
+        </view>
+        <view class="attendance-summary__stats">
+          <view class="attendance-summary__stat">
+            <text class="label">正常</text>
+            <text class="attendance-summary__stat-value">{{stats.normal}}</text>
+          </view>
+          <view class="attendance-summary__stat">
+            <text class="label">迟到</text>
+            <text class="attendance-summary__stat-value">{{stats.late}}</text>
+          </view>
+          <view class="attendance-summary__stat">
+            <text class="label">补卡</text>
+            <text class="attendance-summary__stat-value">{{stats.manual}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="card attendance-calendar-card">
+        <view class="row-between attendance-calendar__header">
+          <button class="button-reset attendance-calendar__switch" bindtap="handlePrevMonth">上月</button>
+          <view class="attendance-calendar__title-wrap">
+            <!-- <text class="attendance-calendar__year">{{calendarYearText}}年</text> -->
+            <text class="attendance-calendar__title">{{calendarTitle}}</text>
+            <!-- <text class="attendance-calendar__meta">{{calendarMetaText}}</text> -->
+          </view>
+          <button class="button-reset attendance-calendar__switch" bindtap="handleNextMonth">下月</button>
+        </view>
+
+        <view class="attendance-week-row">
+          <text class="attendance-week-label" wx:for="{{weekDays}}" wx:key="*this">{{item}}</text>
+        </view>
+
+        <view class="attendance-calendar-grid">
+          <view
+            class="attendance-day {{item.isEmpty ? 'attendance-day--empty' : ''}} {{selectedDate === item.dateKey ? 'attendance-day--selected' : ''}} {{item.isToday ? 'attendance-day--today' : ''}}"
+            wx:for="{{calendarDays}}"
+            wx:key="id"
+            data-date="{{item.dateKey}}"
+            bindtap="handleSelectDate"
+          >
+            <block wx:if="{{!item.isEmpty}}">
+              <text class="attendance-day__number">{{item.day}}</text>
+              <view wx:if="{{item.hasRecord}}" class="attendance-day__dot attendance-day__dot--{{item.summaryTone}}"></view>
+              <text wx:if="{{item.hasRecord}}" class="attendance-day__label">{{item.summaryLabel}}</text>
+            </block>
+          </view>
+        </view>
+      </view>
+
+      <view class="card attendance-detail-card">
+        <view class="row-between">
+          <text class="section-title attendance-detail-card__title">{{selectedDateText}}</text>
+          <text class="section-subtitle">{{selectedRecords.length}} 条</text>
+        </view>
+
+        <view wx:if="{{selectedRecords.length}}">
+          <view class="attendance-detail-item" wx:for="{{selectedRecords}}" wx:key="id">
+            <view class="attendance-detail-item__main">
+              <view class="row-between attendance-detail-item__top">
+                <text class="attendance-detail-item__title">{{item.recordTypeLabel}}</text>
+                <view class="badge badge-{{item.statusTone}}">{{item.statusLabel}}</view>
+              </view>
+              <text class="attendance-detail-item__meta">{{item.checkTimeText}}</text>
+              <text class="attendance-detail-item__remark" wx:if="{{item.is_manual}}">补卡记录{{item.remark ? '：' + item.remark : ''}}</text>
+            </view>
+          </view>
+        </view>
+        <view wx:else class="empty-state">该日期暂无打卡记录。</view>
+      </view>
+    </view>
+  </scroll-view>
+</view>

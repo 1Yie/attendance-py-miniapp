@@ -1,0 +1,55 @@
+<view class="page-shell review-page">
+  <navigation-bar title="审核" back="{{false}}" color="#172033" background="#eef3f9"></navigation-bar>
+
+  <scroll-view class="page-scroll" scroll-y type="list">
+    <view class="page-body" wx:if="{{loading}}">
+      <view class="card review-card skeleton-stack">
+        <view class="skeleton-block skeleton-text skeleton-text--sm"></view>
+        <view class="skeleton-block skeleton-text skeleton-text--xl"></view>
+        <view class="skeleton-block skeleton-text skeleton-text--lg"></view>
+      </view>
+      <view class="card review-card skeleton-stack">
+        <view class="skeleton-block skeleton-text skeleton-text--sm"></view>
+        <view class="skeleton-block skeleton-text skeleton-text--xl"></view>
+        <view class="skeleton-block skeleton-text skeleton-text--lg"></view>
+      </view>
+    </view>
+
+    <view class="page-body" wx:else>
+      <view class="card review-card" wx:if="{{!isAdmin}}">
+        <text class="section-title">审核入口仅管理员可用</text>
+        <text class="review-empty__desc">当前账号不是管理员，请联系管理员处理补卡审核。</text>
+      </view>
+
+      <view class="card review-card" wx:elif="{{makeupRequests.length}}">
+        <view class="row-between review-card__header">
+          <text class="section-title">补卡申请</text>
+          <text class="section-subtitle">{{makeupRequests.length}} 条</text>
+        </view>
+
+        <view class="review-item" wx:for="{{makeupRequests}}" wx:key="id">
+          <view class="row-between review-item__top">
+            <text class="review-item__name">{{item.user_name}} · {{item.recordTypeLabel}}</text>
+            <view class="badge badge-{{item.statusTone}}">{{item.statusLabel}}</view>
+          </view>
+
+          <text class="review-item__meta">补卡时间：{{item.targetTimeText}}</text>
+          <text class="review-item__meta">申请时间：{{item.createdAtText}}</text>
+          <text class="review-item__reason">原因：{{item.reason}}</text>
+          <text class="review-item__meta" wx:if="{{item.reviewedAtText !== '--'}}">审核时间：{{item.reviewedAtText}}</text>
+          <text class="review-item__meta" wx:if="{{item.reviewer_comment}}">审核备注：{{item.reviewer_comment}}</text>
+
+          <view class="review-item__actions" wx:if="{{item.status === 'pending'}}">
+            <button class="btn-primary review-item__button" loading="{{reviewingRequestId === item.id}}" data-id="{{item.id}}" data-action="approve" bindtap="handleReviewRequest">通过</button>
+            <button class="btn-secondary review-item__button" loading="{{reviewingRequestId === item.id}}" data-id="{{item.id}}" data-action="reject" bindtap="handleReviewRequest">驳回</button>
+          </view>
+        </view>
+      </view>
+
+      <view class="card review-card" wx:else>
+        <text class="section-title">当前没有补卡申请</text>
+        <text class="review-empty__desc">员工提交补卡后，会在这里集中显示并等待审核。</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>
