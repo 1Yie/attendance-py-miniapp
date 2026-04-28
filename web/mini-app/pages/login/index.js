@@ -23,6 +23,7 @@ Page({
       return
     }
 
+    // ensure any previous loading indicator is hidden
     wx.hideLoading()
   },
 

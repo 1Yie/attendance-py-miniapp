@@ -53,6 +53,7 @@ Page({
 
   onShow() {
     syncTabBar('review')
+    wx.showLoading({ title: '加载中' })
     if (!ensureLoggedIn()) {
       wx.hideLoading()
       return

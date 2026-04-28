@@ -83,14 +83,14 @@
         <button class="btn-primary profile-admin-entry" bindtap="handleOpenAdmin">打开管理页面</button>
       </view>
 
-      <view class="card profile-card">
+      <!-- <view class="card profile-card">
         <view class="row-between">
           <text class="section-title">补卡记录</text>
           <text class="section-subtitle">申请与审核结果</text>
         </view>
 
         <button class="btn-primary profile-makeup-entry" bindtap="handleOpenMakeup">查看补卡记录</button>
-      </view>
+      </view> -->
 
       <button class="btn-secondary profile-logout" bindtap="handleLogout">退出登录</button>
     </view>

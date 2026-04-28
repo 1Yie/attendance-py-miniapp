@@ -44,7 +44,9 @@ Page({
   },
 
   onShow() {
+    wx.showLoading({ title: '加载中' })
     if (!ensureLoggedIn()) {
+      wx.hideLoading()
       return
     }
 
@@ -87,6 +89,7 @@ Page({
       showError(error)
     } finally {
       this.setData({ loading: false })
+      wx.hideLoading()
     }
   },
 
@@ -94,6 +97,16 @@ Page({
     const { field } = event.currentTarget.dataset
     this.setData({
       [`configForm.${field}`]: event.detail.value,
+    })
+  },
+
+  handleConfigPicker(event) {
+    const field = event.currentTarget.dataset.field
+    // picker change event returns an object with "detail.value"
+    const value = event.detail && event.detail.value
+    if (!field) return
+    this.setData({
+      [`configForm.${field}`]: value,
     })
   },
 
@@ -128,6 +141,7 @@ Page({
       showError(error)
     } finally {
       this.setData({ savingConfig: false })
+      wx.hideLoading()
     }
   },
 

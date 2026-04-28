@@ -51,6 +51,7 @@ Page({
   onShow() {
     this.startClock()
     syncTabBar('clock')
+    wx.showLoading({ title: '加载中' })
     if (!ensureLoggedIn()) {
       wx.hideLoading()
       return

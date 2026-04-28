@@ -27,11 +27,15 @@
         <view class="admin-form-grid">
           <view class="field">
             <text class="label">上班时间</text>
-            <input class="input" data-field="work_start" value="{{configForm.work_start}}" bindinput="handleConfigInput" placeholder="09:00" />
+            <picker mode="time" data-field="work_start" value="{{configForm.work_start}}" bindchange="handleConfigPicker">
+              <view class="input picker-input">{{configForm.work_start}}</view>
+            </picker>
           </view>
           <view class="field">
             <text class="label">下班时间</text>
-            <input class="input" data-field="work_end" value="{{configForm.work_end}}" bindinput="handleConfigInput" placeholder="18:00" />
+            <picker mode="time" data-field="work_end" value="{{configForm.work_end}}" bindchange="handleConfigPicker">
+              <view class="input picker-input">{{configForm.work_end}}</view>
+            </picker>
           </view>
           <view class="field">
             <text class="label">上班打卡次数</text>

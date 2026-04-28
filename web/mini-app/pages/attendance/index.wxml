@@ -58,6 +58,10 @@
             <text class="attendance-summary__stat-value">{{stats.late}}</text>
           </view>
           <view class="attendance-summary__stat">
+            <text class="label">早退</text>
+            <text class="attendance-summary__stat-value">{{stats.early}}</text>
+          </view>
+          <view class="attendance-summary__stat">
             <text class="label">补卡</text>
             <text class="attendance-summary__stat-value">{{stats.manual}}</text>
           </view>
@@ -68,7 +72,7 @@
         <view class="row-between attendance-calendar__header">
           <button class="button-reset attendance-calendar__switch" bindtap="handlePrevMonth">上月</button>
           <view class="attendance-calendar__title-wrap">
-            <!-- <text class="attendance-calendar__year">{{calendarYearText}}年</text> -->
+            <text class="attendance-calendar__year">{{calendarYearText}}年</text>
             <text class="attendance-calendar__title">{{calendarTitle}}</text>
             <!-- <text class="attendance-calendar__meta">{{calendarMetaText}}</text> -->
           </view>

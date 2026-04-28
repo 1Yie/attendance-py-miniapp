@@ -123,3 +123,12 @@
   font-size: 20rpx;
   font-weight: 600;
 }
+
+/* Ensure picker content vertically centers like native input */
+.picker-input {
+  display: flex;
+  align-items: center;
+  height: 92rpx; /* match .input height from global styles */
+  padding: 0 24rpx;
+  box-sizing: border-box;
+}

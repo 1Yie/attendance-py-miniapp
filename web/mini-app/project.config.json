@@ -1,25 +1,35 @@
 {
   "setting": {
-    "es6": true,
-    "postcss": true,
-    "minified": true,
-    "uglifyFileName": false,
     "enhance": true,
+    "es6": true,
+    "condition": false,
+    "swc": false,
+    "disableSWC": true,
+    "postcss": false,
+    "compileWorklet": false,
+    "minified": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": true,
+    "packNpmManually": false,
     "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
     "babelSetting": {
       "ignore": [],
       "disablePlugins": [],
       "outputPath": ""
-    },
-    "useCompilerPlugins": false,
-    "minifyWXML": true
+    }
   },
+  "appid": "wxcf72ae1835ec2c0b",
+  "libVersion": "3.15.2",
   "compileType": "miniprogram",
   "simulatorPluginLibVersion": {},
   "packOptions": {
     "ignore": [],
     "include": []
   },
-  "appid": "touristappid",
   "editorSetting": {}
 }

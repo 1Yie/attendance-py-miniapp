@@ -29,7 +29,7 @@
 .attendance-summary__stats {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16rpx;
 }
 
@@ -67,6 +67,21 @@
   white-space: nowrap;
   font-size: 30rpx;
   font-weight: 600;
+}
+
+.attendance-calendar__year {
+  color: #7d8aa2;
+  font-size: 24rpx;
+  margin-bottom: 4rpx;
+  /* Keep the year and the Chinese '年' character together on one line */
+  white-space: nowrap;
+  display: block;
+}
+
+.attendance-calendar__title-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 6rpx;
 }
 
 .attendance-calendar__title-wrap {

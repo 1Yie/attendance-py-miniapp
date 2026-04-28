@@ -68,6 +68,8 @@ def create_app():
     with app.app_context():
         from app import models  # noqa: F401
 
+        db.create_all()
+
         _bootstrap_data(app)
 
     return app

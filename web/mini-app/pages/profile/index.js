@@ -42,6 +42,7 @@ Page({
 
   onShow() {
     syncTabBar('profile')
+    wx.showLoading({ title: '加载中' })
     if (!ensureLoggedIn()) {
       wx.hideLoading()
       return

@@ -130,7 +130,7 @@ def update_user(user_id):
         if not position:
             return _json_error('职位不能为空', 400)
         user.position = position
-
+        
     if 'role' in data:
         role = (data.get('role') or '').strip()
         if role not in ('employee', 'admin'):

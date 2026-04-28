@@ -141,6 +141,7 @@ function buildMonthStats(records, monthKey) {
     total: monthRecords.length,
     normal: monthRecords.filter((item) => item.status === 'normal').length,
     late: monthRecords.filter((item) => item.status === 'late').length,
+    early: monthRecords.filter((item) => item.status === 'early_leave').length,
     manual: monthRecords.filter((item) => item.is_manual).length,
   }
 }
@@ -162,20 +163,40 @@ Page({
       total: 0,
       normal: 0,
       late: 0,
+      early: 0,
       manual: 0,
     },
   },
 
   onLoad() {
     const now = new Date()
+    const currentMonth = getMonthKey(now.getFullYear(), now.getMonth() + 1)
+
+    // Initialize calendar header with current year/month so the UI shows the
+    // year even before records are loaded.
+    const monthData = buildMonthData([], currentMonth)
+    const todayKey = getTodayKey()
+    const fallbackDate = todayKey.startsWith(currentMonth) ? todayKey : `${currentMonth}-01`
+
     this.setData({
-      currentMonth: getMonthKey(now.getFullYear(), now.getMonth() + 1),
+      currentMonth,
+      calendarTitle: monthData.title,
+      calendarYearText: monthData.yearText,
+      calendarMetaText: monthData.metaText,
+      calendarDays: monthData.cells,
+      weekDays: monthData.weekDays,
+      selectedDate: fallbackDate,
+      selectedDateText: formatDisplayDate(fallbackDate),
+      selectedRecords: [],
+      stats: buildMonthStats([], currentMonth),
     })
   },
 
   onShow() {
     syncTabBar('attendance')
+    wx.showLoading({ title: '加载中' })
     if (!ensureLoggedIn()) {
+      // ensure loading is hidden if the user is redirected to login
       wx.hideLoading()
       return
     }
