@@ -90,11 +90,11 @@
           <radio-group class="admin-role-group" bindchange="handleRoleChange">
             <label class="admin-role-option">
               <radio value="employee" checked="{{userForm.role === 'employee'}}" color="#2255ff" />
-              <text>员工</text>
+              <text>学生</text>
             </label>
             <label class="admin-role-option">
               <radio value="admin" checked="{{userForm.role === 'admin'}}" color="#2255ff" />
-              <text>管理员</text>
+              <text>教师/管理员</text>
             </label>
           </radio-group>
         </view>
@@ -118,7 +118,7 @@
               <text class="admin-user-item__meta">{{item.phone}} · {{item.position}}</text>
             </view>
             <view class="admin-user-item__actions">
-              <view class="badge {{item.role === 'admin' ? 'badge-warning' : 'badge-neutral'}}">{{item.role === 'admin' ? '管理员' : '员工'}}</view>
+              <view class="badge {{item.role === 'admin' ? 'badge-warning' : 'badge-neutral'}}">{{item.role === 'admin' ? '教师/管理员' : '学生'}}</view>
               <view class="admin-user-item__edit" data-user="{{item}}" bindtap="handleEditUser">编辑</view>
             </view>
           </view>

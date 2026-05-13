@@ -82,7 +82,7 @@
           data-type="check_in"
           bindtap="handlePunch"
         >
-          上课打卡
+          签到
         </button>
         <button
           class="btn-secondary clock-actions__button clock-actions__button-light"
@@ -90,7 +90,7 @@
           data-type="check_out"
           bindtap="handlePunch"
         >
-          下课打卡
+          签退
         </button>
       </view>
 

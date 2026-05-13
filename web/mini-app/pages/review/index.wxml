@@ -48,7 +48,7 @@
 
       <view class="card review-card" wx:else>
         <text class="section-title">当前没有补卡申请</text>
-        <text class="review-empty__desc">员工提交补卡后，会在这里集中显示并等待审核。</text>
+        <text class="review-empty__desc">学生提交补卡后，会在这里集中显示并等待审核。</text>
       </view>
     </view>
   </scroll-view>
