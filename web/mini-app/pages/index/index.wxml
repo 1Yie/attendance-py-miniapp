@@ -64,12 +64,12 @@
 
         <view class="clock-config" wx:if="{{config}}">
           <view class="clock-config__item">
-            <text class="label">上班时间</text>
+            <text class="label">上课时间</text>
             <text class="value">{{config.work_start}}</text>
           </view>
           <view class="clock-config__divider"></view>
           <view class="clock-config__item">
-            <text class="label">下班时间</text>
+            <text class="label">下课时间</text>
             <text class="value">{{config.work_end}}</text>
           </view>
         </view>
@@ -82,7 +82,7 @@
           data-type="check_in"
           bindtap="handlePunch"
         >
-          上班打卡
+          上课打卡
         </button>
         <button
           class="btn-secondary clock-actions__button clock-actions__button-light"
@@ -90,7 +90,7 @@
           data-type="check_out"
           bindtap="handlePunch"
         >
-          下班打卡
+          下课打卡
         </button>
       </view>
 

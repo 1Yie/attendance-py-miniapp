@@ -26,23 +26,23 @@
 
         <view class="admin-form-grid">
           <view class="field">
-            <text class="label">上班时间</text>
+            <text class="label">上课时间</text>
             <picker mode="time" data-field="work_start" value="{{configForm.work_start}}" bindchange="handleConfigPicker">
               <view class="input picker-input">{{configForm.work_start}}</view>
             </picker>
           </view>
           <view class="field">
-            <text class="label">下班时间</text>
+            <text class="label">下课时间</text>
             <picker mode="time" data-field="work_end" value="{{configForm.work_end}}" bindchange="handleConfigPicker">
               <view class="input picker-input">{{configForm.work_end}}</view>
             </picker>
           </view>
           <view class="field">
-            <text class="label">上班打卡次数</text>
+            <text class="label">上课打卡次数</text>
             <input class="input" type="number" data-field="check_in_limit" value="{{configForm.check_in_limit}}" bindinput="handleConfigInput" />
           </view>
           <view class="field">
-            <text class="label">下班打卡次数</text>
+            <text class="label">下课打卡次数</text>
             <input class="input" type="number" data-field="check_out_limit" value="{{configForm.check_out_limit}}" bindinput="handleConfigInput" />
           </view>
           <view class="field admin-form-grid__full">

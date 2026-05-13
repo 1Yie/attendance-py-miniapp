@@ -11,8 +11,8 @@ const STATUS_TONE_MAP = {
 }
 
 const RECORD_TYPE_LABEL_MAP = {
-  check_in: '上班打卡',
-  check_out: '下班打卡',
+  check_in: '上课打卡',
+  check_out: '下课打卡',
 }
 
 function formatDate(value) {

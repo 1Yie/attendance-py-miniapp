@@ -27,11 +27,11 @@
           <radio-group class="makeup-type-group" bindchange="handleTypeChange">
             <label class="makeup-type-option">
               <radio value="check_in" checked="{{form.record_type === 'check_in'}}" color="#2255ff" />
-              <text>上班打卡</text>
+              <text>上课打卡</text>
             </label>
             <label class="makeup-type-option">
               <radio value="check_out" checked="{{form.record_type === 'check_out'}}" color="#2255ff" />
-              <text>下班打卡</text>
+              <text>下课打卡</text>
             </label>
           </radio-group>
         </view>
