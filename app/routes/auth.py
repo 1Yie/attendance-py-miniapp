@@ -51,7 +51,7 @@ def _get_admin():
     if user is None:
         return None, _json_error('未登录或登录已失效', 401)
     if user.role != 'admin':
-        return None, _json_error('仅管理员可操作', 403)
+        return None, _json_error('仅教师可操作', 403)
     return user, None
 
 

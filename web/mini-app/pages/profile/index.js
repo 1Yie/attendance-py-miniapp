@@ -28,7 +28,7 @@ function syncTabBar(key) {
 function mapUser(user) {
   return Object.assign({}, user, {
     avatarText: (user.name || '').slice(0, 1) || '我',
-    roleLabel: user.role === 'admin' ? '管理员' : '员工',
+    roleLabel: user.role === 'admin' ? '教师' : '学生',
     lastLoginAtText: formatDateTime(user.last_login_at),
   })
 }

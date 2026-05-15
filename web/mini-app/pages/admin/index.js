@@ -1,6 +1,8 @@
 const { ensureLoggedIn } = require('../../auth')
 const { request } = require('../../request')
 
+const SESSION_POLL_INTERVAL = 10000
+
 function showError(error) {
   wx.showToast({
     title: error.message || '加载失败',
@@ -12,6 +14,39 @@ function showSuccess(title) {
   wx.showToast({
     title,
     icon: 'success',
+  })
+}
+
+function padNumber(value) {
+  return `${value}`.padStart(2, '0')
+}
+
+function getInitialSessionForm() {
+  const defaultDeadline = new Date(Date.now() + 10 * 60 * 1000)
+  return {
+    deadline_date: `${defaultDeadline.getFullYear()}-${padNumber(defaultDeadline.getMonth() + 1)}-${padNumber(defaultDeadline.getDate())}`,
+    deadline_time: `${padNumber(defaultDeadline.getHours())}:${padNumber(defaultDeadline.getMinutes())}`,
+  }
+}
+
+function formatDateTime(value) {
+  if (!value) {
+    return '--'
+  }
+
+  return String(value).replace('T', ' ').slice(0, 16)
+}
+
+function formatCurrentSession(session) {
+  if (!session) {
+    return null
+  }
+
+  return Object.assign({}, session, {
+    createdAtText: formatDateTime(session.created_at),
+    deadlineAtText: formatDateTime(session.deadline_at),
+    submissions: session.submissions || [],
+    pending_students: session.pending_students || [],
   })
 }
 
@@ -30,7 +65,9 @@ Page({
   data: {
     loading: true,
     savingConfig: false,
+    launchingSession: false,
     creatingUser: false,
+    currentSession: null,
     configForm: {
       work_start: '09:00',
       work_end: '18:00',
@@ -39,6 +76,7 @@ Page({
       makeup_limit_per_month: '3',
       makeup_requires_approval: true,
     },
+    sessionForm: getInitialSessionForm(),
     userForm: getInitialUserForm(),
     users: [],
   },
@@ -53,19 +91,56 @@ Page({
     this.loadAdminData()
   },
 
+  onHide() {
+    this.stopSessionPolling()
+  },
+
+  onUnload() {
+    this.stopSessionPolling()
+  },
+
+  startSessionPolling() {
+    this.stopSessionPolling()
+    this.sessionPollTimer = setInterval(() => {
+      this.refreshCurrentSession({ silent: true })
+    }, SESSION_POLL_INTERVAL)
+  },
+
+  stopSessionPolling() {
+    if (this.sessionPollTimer) {
+      clearInterval(this.sessionPollTimer)
+      this.sessionPollTimer = null
+    }
+  },
+
+  async refreshCurrentSession(options = {}) {
+    try {
+      const response = await request({ url: '/attendance/sessions/current' })
+      const currentSession = formatCurrentSession(response.session)
+      this.setData({ currentSession })
+      return currentSession
+    } catch (error) {
+      if (!options.silent) {
+        showError(error)
+      }
+      return null
+    }
+  },
+
   async loadAdminData() {
     this.setData({ loading: true })
 
     try {
-      const [meResponse, configResponse, usersResponse] = await Promise.all([
+      const [meResponse, configResponse, usersResponse, sessionResponse] = await Promise.all([
         request({ url: '/auth/me' }),
         request({ url: '/attendance/config' }),
         request({ url: '/auth/users' }),
+        request({ url: '/attendance/sessions/current' }),
       ])
 
       if (!meResponse.user || meResponse.user.role !== 'admin') {
         wx.showToast({
-          title: '仅管理员可访问',
+          title: '仅教师可访问',
           icon: 'none',
         })
         setTimeout(() => {
@@ -83,8 +158,10 @@ Page({
           makeup_limit_per_month: `${configResponse.config.makeup_limit_per_month}`,
           makeup_requires_approval: !!configResponse.config.makeup_requires_approval,
         },
+        currentSession: formatCurrentSession(sessionResponse.session),
         users: usersResponse.users || [],
       })
+      this.startSessionPolling()
     } catch (error) {
       showError(error)
     } finally {
@@ -114,6 +191,50 @@ Page({
     this.setData({
       'configForm.makeup_requires_approval': !!event.detail.value,
     })
+  },
+
+  handleSessionPicker(event) {
+    const field = event.currentTarget.dataset.field
+    const value = event.detail && event.detail.value
+    if (!field) {
+      return
+    }
+
+    this.setData({
+      [`sessionForm.${field}`]: value,
+    })
+  },
+
+  async handleLaunchSession() {
+    if (this.data.launchingSession) {
+      return
+    }
+
+    try {
+      this.setData({ launchingSession: true })
+      const currentSession = await this.refreshCurrentSession({ silent: true })
+      if (currentSession) {
+        showError({ message: '当前已有进行中的考勤' })
+        return
+      }
+
+      await request({
+        url: '/attendance/sessions',
+        method: 'POST',
+        data: {
+          deadline_at: `${this.data.sessionForm.deadline_date} ${this.data.sessionForm.deadline_time}`,
+        },
+      })
+      showSuccess('考勤已发起')
+      this.setData({
+        sessionForm: getInitialSessionForm(),
+      })
+      await this.loadAdminData()
+    } catch (error) {
+      showError(error)
+    } finally {
+      this.setData({ launchingSession: false })
+    }
   },
 
   async handleSaveConfig() {

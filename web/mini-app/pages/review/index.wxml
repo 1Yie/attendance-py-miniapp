@@ -17,8 +17,8 @@
 
     <view class="page-body" wx:else>
       <view class="card review-card" wx:if="{{!isAdmin}}">
-        <text class="section-title">审核入口仅管理员可用</text>
-        <text class="review-empty__desc">当前账号不是管理员，请联系管理员处理补卡审核。</text>
+        <text class="section-title">审核入口仅教师可用</text>
+        <text class="review-empty__desc">当前账号不是教师，请联系教师处理补卡审核。</text>
       </view>
 
       <view class="card review-card" wx:elif="{{makeupRequests.length}}">

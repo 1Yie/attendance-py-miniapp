@@ -20,6 +20,80 @@
     <view class="page-body" wx:else>
       <view class="card admin-card">
         <view class="row-between admin-card__header">
+          <text class="section-title">发起课堂考勤</text>
+          <text class="section-subtitle">{{currentSession ? '进行中' : '等待发起'}}</text>
+        </view>
+
+        <view class="admin-form-grid">
+          <view class="field">
+            <text class="label">截止日期</text>
+            <picker mode="date" data-field="deadline_date" value="{{sessionForm.deadline_date}}" bindchange="handleSessionPicker">
+              <view class="input picker-input">{{sessionForm.deadline_date}}</view>
+            </picker>
+          </view>
+          <view class="field">
+            <text class="label">截止时间</text>
+            <picker mode="time" data-field="deadline_time" value="{{sessionForm.deadline_time}}" bindchange="handleSessionPicker">
+              <view class="input picker-input">{{sessionForm.deadline_time}}</view>
+            </picker>
+          </view>
+        </view>
+
+        <button
+          class="btn-primary admin-card__button"
+          loading="{{launchingSession}}"
+          disabled="{{!!currentSession}}"
+          bindtap="handleLaunchSession"
+        >
+          {{currentSession ? '当前已有进行中的考勤' : '立即发起考勤'}}
+        </button>
+
+        <view wx:if="{{currentSession}}" class="admin-session">
+          <view class="admin-session__summary">
+            <view class="admin-session__stat">
+              <text class="label">发起时间</text>
+              <text class="value">{{currentSession.createdAtText}}</text>
+            </view>
+            <view class="admin-session__stat">
+              <text class="label">截止时间</text>
+              <text class="value">{{currentSession.deadlineAtText}}</text>
+            </view>
+          </view>
+
+          <view class="admin-session__summary admin-session__summary--counts">
+            <view class="admin-session__stat admin-session__stat--count">
+              <text class="label">学生总数</text>
+              <text class="value">{{currentSession.student_count}}</text>
+            </view>
+            <view class="admin-session__stat admin-session__stat--count">
+              <text class="label">已签到</text>
+              <text class="value">{{currentSession.submitted_count}}</text>
+            </view>
+            <view class="admin-session__stat admin-session__stat--count">
+              <text class="label">未签到</text>
+              <text class="value">{{currentSession.pending_count}}</text>
+            </view>
+          </view>
+
+          <view class="admin-session__group" wx:if="{{currentSession.pending_students.length}}">
+            <text class="label">未签到学生</text>
+            <view class="admin-session__chips">
+              <view class="admin-session__chip admin-session__chip--pending" wx:for="{{currentSession.pending_students}}" wx:key="id">{{item.name}}</view>
+            </view>
+          </view>
+
+          <view class="admin-session__group" wx:if="{{currentSession.submissions.length}}">
+            <text class="label">已签到学生</text>
+            <view class="admin-session__chips">
+              <view class="admin-session__chip" wx:for="{{currentSession.submissions}}" wx:key="id">{{item.student_name}}</view>
+            </view>
+          </view>
+        </view>
+        <view wx:else class="empty-state admin-empty-state">当前没有进行中的课堂考勤。</view>
+      </view>
+
+      <view class="card admin-card">
+        <view class="row-between admin-card__header">
           <text class="section-title">考勤设置</text>
           <!-- <text class="section-subtitle">管理员可修改</text> -->
         </view>
@@ -94,7 +168,7 @@
             </label>
             <label class="admin-role-option">
               <radio value="admin" checked="{{userForm.role === 'admin'}}" color="#2255ff" />
-              <text>教师/管理员</text>
+              <text>教师</text>
             </label>
           </radio-group>
         </view>
@@ -118,7 +192,7 @@
               <text class="admin-user-item__meta">{{item.phone}} · {{item.position}}</text>
             </view>
             <view class="admin-user-item__actions">
-              <view class="badge {{item.role === 'admin' ? 'badge-warning' : 'badge-neutral'}}">{{item.role === 'admin' ? '教师/管理员' : '学生'}}</view>
+              <view class="badge {{item.role === 'admin' ? 'badge-warning' : 'badge-neutral'}}">{{item.role === 'admin' ? '教师' : '学生'}}</view>
               <view class="admin-user-item__edit" data-user="{{item}}" bindtap="handleEditUser">编辑</view>
             </view>
           </view>

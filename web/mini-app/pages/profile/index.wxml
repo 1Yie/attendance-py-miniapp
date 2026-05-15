@@ -76,7 +76,7 @@
 
       <view class="card profile-card" wx:if="{{user && user.role === 'admin'}}">
         <view class="row-between">
-          <text class="section-title">管理功能</text>
+          <text class="section-title">教师功能</text>
           <text class="section-subtitle">设置与账户</text>
         </view>
 

@@ -28,6 +28,56 @@ class AttendanceConfig(db.Model):
         }
 
 
+class AttendanceSession(db.Model):
+    """教师发起的课堂考勤"""
+    __tablename__ = 'attendance_sessions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    teacher_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    deadline_at = db.Column(db.DateTime, nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.now, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
+
+    teacher = db.relationship('User', foreign_keys=[teacher_id])
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'teacher_id': self.teacher_id,
+            'teacher_name': self.teacher.name if self.teacher else None,
+            'deadline_at': self.deadline_at.isoformat(),
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
+            'is_active': self.deadline_at >= datetime.now(),
+        }
+
+
+class AttendanceSessionSubmission(db.Model):
+    """学生对课堂考勤的签到结果"""
+    __tablename__ = 'attendance_session_submissions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(db.Integer, db.ForeignKey('attendance_sessions.id'), nullable=False, index=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    submitted_at = db.Column(db.DateTime, default=datetime.now, nullable=False)
+
+    session = db.relationship('AttendanceSession')
+    student = db.relationship('User', foreign_keys=[student_id])
+
+    __table_args__ = (
+        db.UniqueConstraint('session_id', 'student_id', name='uq_attendance_session_submission_session_student'),
+    )
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'session_id': self.session_id,
+            'student_id': self.student_id,
+            'student_name': self.student.name if self.student else None,
+            'submitted_at': self.submitted_at.isoformat(),
+        }
+
+
 class MakeupRequest(db.Model):
     """补卡申请表"""
     __tablename__ = 'makeup_requests'

@@ -96,6 +96,38 @@
   margin-top: 24rpx;
 }
 
+.clock-session-card {
+  background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 100%);
+}
+
+.clock-session__meta {
+  margin-top: 24rpx;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18rpx;
+}
+
+.clock-session__meta-item,
+.clock-session__submitted {
+  padding: 22rpx;
+  border-radius: 22rpx;
+  background: #f5f8fc;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.clock-session__submitted {
+  margin-top: 18rpx;
+}
+
+.clock-session__button {
+  margin-top: 24rpx;
+  height: 84rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
 .clock-shortcut-card__button {
   min-width: 160rpx;
   height: 72rpx;

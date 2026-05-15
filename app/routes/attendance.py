@@ -3,7 +3,14 @@ from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
 
 from app import db
-from app.models import AttendanceConfig, AttendanceRecord, MakeupRequest
+from app.models import (
+    AttendanceConfig,
+    AttendanceRecord,
+    AttendanceSession,
+    AttendanceSessionSubmission,
+    MakeupRequest,
+    User,
+)
 from app.services.auth import get_current_user
 
 attendance_bp = Blueprint('attendance', __name__)
@@ -18,7 +25,7 @@ def _get_user(admin_only=False):
     if user is None:
         return None, _json_error('未登录或登录已失效', 401)
     if admin_only and user.role != 'admin':
-        return None, _json_error('仅管理员可操作', 403)
+        return None, _json_error('仅教师可操作', 403)
     return user, None
 
 
@@ -29,9 +36,9 @@ def _parse_time_value(value, field_name):
         raise ValueError(f'{field_name} 需要使用 HH:MM 格式')
 
 
-def _parse_datetime_value(value):
+def _parse_datetime_value(value, field_name='target_time'):
     if not value:
-        raise ValueError('target_time 不能为空')
+        raise ValueError(f'{field_name} 不能为空')
 
     candidates = ('%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%dT%H:%M')
     for fmt in candidates:
@@ -40,11 +47,46 @@ def _parse_datetime_value(value):
         except ValueError:
             continue
 
-    raise ValueError('target_time 需要使用 YYYY-MM-DD HH:MM[:SS] 格式')
+    raise ValueError(f'{field_name} 需要使用 YYYY-MM-DD HH:MM[:SS] 格式')
 
 
 def _get_config():
     return AttendanceConfig.query.order_by(AttendanceConfig.id.asc()).first()
+
+
+def _get_current_session(now=None):
+    current_time = now or datetime.now()
+    return AttendanceSession.query.filter(
+        AttendanceSession.deadline_at >= current_time,
+    ).order_by(AttendanceSession.created_at.desc()).first()
+
+
+def _build_student_session_payload(session, student):
+    submission = AttendanceSessionSubmission.query.filter_by(
+        session_id=session.id,
+        student_id=student.id,
+    ).first()
+    payload = session.to_dict()
+    payload['has_submitted'] = submission is not None
+    payload['submission'] = submission.to_dict() if submission else None
+    return payload
+
+
+def _build_admin_session_payload(session):
+    students = User.query.filter_by(role='employee').order_by(User.created_at.asc()).all()
+    submissions = AttendanceSessionSubmission.query.filter_by(session_id=session.id).order_by(
+        AttendanceSessionSubmission.submitted_at.asc(),
+    ).all()
+    submitted_student_ids = {item.student_id for item in submissions}
+    pending_students = [student.to_dict() for student in students if student.id not in submitted_student_ids]
+
+    payload = session.to_dict()
+    payload['student_count'] = len(students)
+    payload['submitted_count'] = len(submissions)
+    payload['pending_count'] = len(pending_students)
+    payload['submissions'] = [item.to_dict() for item in submissions]
+    payload['pending_students'] = pending_students
+    return payload
 
 
 def _count_records(user_id, record_date, record_type, exclude_request_id=None):
@@ -130,6 +172,75 @@ def check_out():
         return _json_error(str(exc), 400)
 
     return jsonify({'message': '下班打卡成功', 'record': record.to_dict()})
+
+
+@attendance_bp.route('/sessions', methods=['POST'])
+def create_session():
+    teacher, error = _get_user(admin_only=True)
+    if error:
+        return error
+
+    data = request.get_json(silent=True) or {}
+    try:
+        deadline_at = _parse_datetime_value(data.get('deadline_at'), 'deadline_at')
+    except ValueError as exc:
+        return _json_error(str(exc), 400)
+
+    now = datetime.now()
+    if deadline_at <= now:
+        return _json_error('deadline_at 必须晚于当前时间', 400)
+    if _get_current_session(now) is not None:
+        return _json_error('当前已有进行中的考勤', 409)
+
+    session = AttendanceSession(teacher_id=teacher.id, deadline_at=deadline_at)
+    db.session.add(session)
+    db.session.commit()
+    return jsonify({'message': '考勤已发起', 'session': _build_admin_session_payload(session)}), 201
+
+
+@attendance_bp.route('/sessions/current', methods=['GET'])
+def current_session():
+    user, error = _get_user()
+    if error:
+        return error
+
+    session = _get_current_session()
+    if session is None:
+        return jsonify({'session': None})
+    if user.role == 'admin':
+        return jsonify({'session': _build_admin_session_payload(session)})
+    return jsonify({'session': _build_student_session_payload(session, user)})
+
+
+@attendance_bp.route('/sessions/<int:session_id>/submit', methods=['POST'])
+def submit_session(session_id):
+    student, error = _get_user()
+    if error:
+        return error
+    if student.role != 'employee':
+        return _json_error('仅学生可操作', 403)
+
+    session = db.session.get(AttendanceSession, session_id)
+    if session is None:
+        return _json_error('考勤不存在', 404)
+    if datetime.now() > session.deadline_at:
+        return _json_error('当前考勤已截止', 400)
+
+    existing_submission = AttendanceSessionSubmission.query.filter_by(
+        session_id=session.id,
+        student_id=student.id,
+    ).first()
+    if existing_submission is not None:
+        return _json_error('本次考勤已签到', 400)
+
+    submission = AttendanceSessionSubmission(session_id=session.id, student_id=student.id)
+    db.session.add(submission)
+    db.session.commit()
+    return jsonify({
+        'message': '课堂考勤签到成功',
+        'submission': submission.to_dict(),
+        'session': _build_student_session_payload(session, student),
+    })
 
 
 @attendance_bp.route('/records', methods=['GET'])

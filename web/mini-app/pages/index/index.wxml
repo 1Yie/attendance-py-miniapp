@@ -75,6 +75,33 @@
         </view>
       </view>
 
+      <view class="card clock-section clock-session-card" wx:if="{{isStudent && currentSession}}">
+        <view class="row-between">
+          <view>
+            <text class="section-title">教师发起考勤</text>
+            <text class="section-subtitle">{{currentSession.hasSubmitted ? '本次课堂考勤已完成签到' : '请在截止前完成课堂签到'}}</text>
+          </view>
+          <view class="badge {{currentSession.hasSubmitted ? 'badge-success' : 'badge-warning'}}">{{currentSession.hasSubmitted ? '已签到' : '待签到'}}</view>
+        </view>
+
+        <view class="clock-session__meta">
+          <view class="clock-session__meta-item">
+            <text class="label">发起时间</text>
+            <text class="value">{{currentSession.createdAtText}}</text>
+          </view>
+          <view class="clock-session__meta-item">
+            <text class="label">截止时间</text>
+            <text class="value">{{currentSession.deadlineAtText}}</text>
+          </view>
+        </view>
+
+        <view class="clock-session__submitted" wx:if="{{currentSession.hasSubmitted}}">
+          <text class="label">签到时间</text>
+          <text class="value">{{currentSession.submittedAtText}}</text>
+        </view>
+        <button wx:else class="btn-primary clock-session__button" loading="{{sessionSubmitting}}" bindtap="handleSessionSubmit">立即签到</button>
+      </view>
+
       <view class="clock-actions">
         <button
           class="btn-primary clock-actions__button"

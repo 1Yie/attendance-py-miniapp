@@ -102,7 +102,7 @@ Page({
         method: 'POST',
         data: {
           action,
-          reviewer_comment: action === 'approve' ? '管理员审核通过' : '管理员审核驳回',
+          reviewer_comment: action === 'approve' ? '教师审核通过' : '教师审核驳回',
         },
       })
       showSuccess(action === 'approve' ? '已通过补卡申请' : '已驳回补卡申请')
