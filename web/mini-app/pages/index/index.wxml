@@ -75,6 +75,83 @@
         </view>
       </view>
 
+      <view class="card clock-section clock-session-card" wx:if="{{isTeacher}}">
+        <view class="row-between">
+          <view>
+            <text class="section-title">发起课堂考勤</text>
+            <text class="section-subtitle">{{currentSession ? '当前考勤进行中，学生签到完会自动结束' : '设置截止时间后即可发起课堂考勤'}}</text>
+          </view>
+          <view class="badge {{currentSession ? 'badge-warning' : 'badge-success'}}">{{currentSession ? '进行中' : '可发起'}}</view>
+        </view>
+
+        <view class="clock-session__picker-grid">
+          <view class="field">
+            <text class="label">截止日期</text>
+            <picker mode="date" data-field="deadline_date" value="{{sessionForm.deadline_date}}" bindchange="handleSessionPicker">
+              <view class="input clock-picker-input">{{sessionForm.deadline_date}}</view>
+            </picker>
+          </view>
+          <view class="field">
+            <text class="label">截止时间</text>
+            <picker mode="time" data-field="deadline_time" value="{{sessionForm.deadline_time}}" bindchange="handleSessionPicker">
+              <view class="input clock-picker-input">{{sessionForm.deadline_time}}</view>
+            </picker>
+          </view>
+        </view>
+
+        <button
+          class="btn-primary clock-session__button"
+          loading="{{launchingSession}}"
+          disabled="{{!!currentSession}}"
+          bindtap="handleLaunchSession"
+        >
+          {{currentSession ? '等待当前考勤结束' : '立即发起考勤'}}
+        </button>
+
+        <view wx:if="{{currentSession}}" class="clock-session__teacher-panel">
+          <view class="clock-session__summary">
+            <view class="clock-session__stat">
+              <text class="label">发起时间</text>
+              <text class="value">{{currentSession.createdAtText}}</text>
+            </view>
+            <view class="clock-session__stat">
+              <text class="label">截止时间</text>
+              <text class="value">{{currentSession.deadlineAtText}}</text>
+            </view>
+          </view>
+
+          <view class="clock-session__summary clock-session__summary--counts">
+            <view class="clock-session__stat clock-session__stat--count">
+              <text class="label">学生总数</text>
+              <text class="value">{{currentSession.studentCount}}</text>
+            </view>
+            <view class="clock-session__stat clock-session__stat--count">
+              <text class="label">已签到</text>
+              <text class="value">{{currentSession.submittedCount}}</text>
+            </view>
+            <view class="clock-session__stat clock-session__stat--count">
+              <text class="label">未签到</text>
+              <text class="value">{{currentSession.pendingCount}}</text>
+            </view>
+          </view>
+
+          <view class="clock-session__group" wx:if="{{currentSession.pendingStudents.length}}">
+            <text class="label">未签到学生</text>
+            <view class="clock-session__chips">
+              <view class="clock-session__chip clock-session__chip--pending" wx:for="{{currentSession.pendingStudents}}" wx:key="id">{{item.name}}</view>
+            </view>
+          </view>
+
+          <view class="clock-session__group" wx:if="{{currentSession.submissions.length}}">
+            <text class="label">已签到学生</text>
+            <view class="clock-session__chips">
+              <view class="clock-session__chip" wx:for="{{currentSession.submissions}}" wx:key="id">{{item.student_name}}</view>
+            </view>
+          </view>
+        </view>
+        <view wx:else class="empty-state clock-session__empty">当前没有进行中的课堂考勤。</view>
+      </view>
+
       <view class="card clock-section clock-session-card" wx:if="{{isStudent && currentSession}}">
         <view class="row-between">
           <view>
@@ -156,6 +233,34 @@
         </view>
         <text class="clock-latest__title">{{latestRecord.recordTypeLabel}}</text>
         <text class="clock-latest__meta">{{latestRecord.checkTimeText}}</text>
+      </view>
+
+      <view class="card clock-section">
+        <view class="row-between">
+          <text class="section-title">课堂考勤记录</text>
+          <text class="section-subtitle">{{sessionHistory.length}} 条</text>
+        </view>
+
+        <view wx:if="{{sessionHistory.length}}">
+          <view class="clock-history-item" wx:for="{{sessionHistory}}" wx:key="id">
+            <view class="row-between clock-history-item__top">
+              <view>
+                <text class="clock-history-item__title">课堂考勤</text>
+                <text class="clock-history-item__meta">发起时间：{{item.createdAtText}}</text>
+              </view>
+              <view class="badge badge-{{item.statusTone}}">{{item.statusLabel}}</view>
+            </view>
+
+            <view class="clock-history-item__stats">
+              <text class="clock-history-item__stat">截止：{{item.deadlineAtText}}</text>
+              <text class="clock-history-item__stat">已签到 {{item.submittedCount}} / {{item.studentCount}}</text>
+            </view>
+
+            <text class="clock-history-item__desc" wx:if="{{isStudent}}">{{item.completionText}}</text>
+            <text class="clock-history-item__desc" wx:elif="{{isTeacher}}">未签到 {{item.pendingCount}} 人</text>
+          </view>
+        </view>
+        <view wx:else class="empty-state">当前还没有课堂考勤记录。</view>
       </view>
     </view>
   </scroll-view>

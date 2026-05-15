@@ -3,7 +3,19 @@ const { enrichRecord } = require('../../format')
 const { request } = require('../../request')
 
 const SESSION_PROMPT_KEY = 'attendance_prompt_session_id'
-const SESSION_POLL_INTERVAL = 10000
+const SESSION_POLL_INTERVAL = 5000
+
+function padNumber(value) {
+  return `${value}`.padStart(2, '0')
+}
+
+function getInitialSessionForm() {
+  const defaultDeadline = new Date(Date.now() + 10 * 60 * 1000)
+  return {
+    deadline_date: `${defaultDeadline.getFullYear()}-${padNumber(defaultDeadline.getMonth() + 1)}-${padNumber(defaultDeadline.getDate())}`,
+    deadline_time: `${padNumber(defaultDeadline.getHours())}:${padNumber(defaultDeadline.getMinutes())}`,
+  }
+}
 
 function getTodayDateString() {
   const now = new Date()
@@ -38,6 +50,24 @@ function formatCurrentSession(session) {
     deadlineAtText: formatDateTime(session.deadline_at),
     hasSubmitted: !!session.has_submitted,
     submittedAtText: submission ? formatDateTime(submission.submitted_at) : '--',
+    studentCount: Number(session.student_count || 0),
+    submittedCount: Number(session.submitted_count || 0),
+    pendingCount: Number(session.pending_count || 0),
+    statusLabel: session.status_label || '--',
+    statusTone: session.status_tone || 'neutral',
+    submissions: session.submissions || [],
+    pendingStudents: session.pending_students || [],
+  })
+}
+
+function formatSessionHistoryItem(session) {
+  const formatted = formatCurrentSession(session)
+  if (!formatted) {
+    return null
+  }
+
+  return Object.assign({}, formatted, {
+    completionText: formatted.hasSubmitted ? `你已于 ${formatted.submittedAtText} 签到` : '你未参与本次课堂考勤',
   })
 }
 
@@ -63,11 +93,15 @@ Page({
     currentTimeText: '',
     loading: true,
     submittingType: '',
+    launchingSession: false,
     sessionSubmitting: false,
     user: null,
     isStudent: false,
+    isTeacher: false,
     config: null,
     currentSession: null,
+    sessionForm: getInitialSessionForm(),
+    sessionHistory: [],
     todayRecords: [],
     latestRecord: null,
   },
@@ -162,8 +196,8 @@ Page({
 
   async refreshCurrentSession(options = {}) {
     const user = this.data.user
-    if (!user || user.role !== 'employee') {
-      return
+    if (!user) {
+      return null
     }
 
     try {
@@ -172,11 +206,18 @@ Page({
       })
       const currentSession = formatCurrentSession(response.session)
       this.setData({ currentSession })
-      this.maybePromptSession(currentSession)
+      if (user.role === 'employee') {
+        this.maybePromptSession(currentSession)
+      }
+      if (options.refreshHistory) {
+        await this.loadSessionHistory({ silent: true })
+      }
+      return currentSession
     } catch (error) {
       if (!options.silent) {
         showError(error)
       }
+      return null
     }
   },
 
@@ -184,24 +225,29 @@ Page({
     this.setData({ loading: true })
 
     try {
-      const [meResponse, configResponse, recordsResponse, sessionResponse] = await Promise.all([
+      const [meResponse, configResponse, recordsResponse, sessionResponse, sessionHistoryResponse] = await Promise.all([
         request({ url: '/auth/me' }),
         request({ url: '/attendance/config' }),
         request({ url: '/attendance/records' }),
         request({ url: '/attendance/sessions/current' }),
+        request({ url: '/attendance/sessions?limit=10' }),
       ])
 
       const today = getTodayDateString()
       const records = (recordsResponse.records || []).map(enrichRecord)
       const todayRecords = records.filter((record) => record.record_date === today)
       const isStudent = !!meResponse.user && meResponse.user.role === 'employee'
-      const currentSession = isStudent ? formatCurrentSession(sessionResponse.session) : null
+      const isTeacher = !!meResponse.user && meResponse.user.role === 'admin'
+      const currentSession = (isStudent || isTeacher) ? formatCurrentSession(sessionResponse.session) : null
+      const sessionHistory = (sessionHistoryResponse.sessions || []).map(formatSessionHistoryItem).filter(Boolean)
 
       this.setData({
         user: meResponse.user,
         isStudent,
+        isTeacher,
         config: configResponse.config,
         currentSession,
+        sessionHistory,
         todayRecords,
         latestRecord: records[0] || null,
         loading: false,
@@ -214,6 +260,9 @@ Page({
 
       if (isStudent) {
         this.maybePromptSession(currentSession)
+      }
+
+      if (isStudent || isTeacher) {
         this.startSessionPolling()
       } else {
         this.stopSessionPolling()
@@ -223,6 +272,21 @@ Page({
     } finally {
       this.setData({ loading: false })
       wx.hideLoading()
+    }
+  },
+
+  async loadSessionHistory(options = {}) {
+    try {
+      const response = await request({
+        url: '/attendance/sessions?limit=10',
+      })
+      this.setData({
+        sessionHistory: (response.sessions || []).map(formatSessionHistoryItem).filter(Boolean),
+      })
+    } catch (error) {
+      if (!options.silent) {
+        showError(error)
+      }
     }
   },
 
@@ -269,13 +333,60 @@ Page({
         title: response.message || '签到成功',
         icon: 'success',
       })
-      this.setData({
-        currentSession: formatCurrentSession(response.session),
-      })
+      await this.refreshCurrentSession({ silent: true, refreshHistory: true })
     } catch (error) {
       showError(error)
     } finally {
       this.setData({ sessionSubmitting: false })
+    }
+  },
+
+  handleSessionPicker(event) {
+    const field = event.currentTarget.dataset.field
+    const value = event.detail && event.detail.value
+    if (!field) {
+      return
+    }
+
+    this.setData({
+      [`sessionForm.${field}`]: value,
+    })
+  },
+
+  async handleLaunchSession() {
+    if (!this.data.isTeacher || this.data.launchingSession) {
+      return
+    }
+
+    try {
+      this.setData({ launchingSession: true })
+      const currentSession = await this.refreshCurrentSession({ silent: true })
+      if (currentSession) {
+        showError({ message: '当前已有进行中的考勤' })
+        return
+      }
+
+      const response = await request({
+        url: '/attendance/sessions',
+        method: 'POST',
+        data: {
+          deadline_at: `${this.data.sessionForm.deadline_date} ${this.data.sessionForm.deadline_time}`,
+        },
+      })
+
+      this.setData({
+        currentSession: formatCurrentSession(response.session),
+        sessionForm: getInitialSessionForm(),
+      })
+      await this.loadSessionHistory({ silent: true })
+      wx.showToast({
+        title: response.message || '考勤已发起',
+        icon: 'success',
+      })
+    } catch (error) {
+      showError(error)
+    } finally {
+      this.setData({ launchingSession: false })
     }
   },
 

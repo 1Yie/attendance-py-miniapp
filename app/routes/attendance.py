@@ -54,38 +54,103 @@ def _get_config():
     return AttendanceConfig.query.order_by(AttendanceConfig.id.asc()).first()
 
 
+def _get_students():
+    return User.query.filter_by(role='employee').order_by(User.created_at.asc()).all()
+
+
+def _get_session_submissions(session_id):
+    return AttendanceSessionSubmission.query.filter_by(session_id=session_id).order_by(
+        AttendanceSessionSubmission.submitted_at.asc(),
+    ).all()
+
+
+def _session_status(status):
+    label_map = {
+        'ongoing': '进行中',
+        'completed': '已完成',
+        'expired': '已截止',
+    }
+    tone_map = {
+        'ongoing': 'warning',
+        'completed': 'success',
+        'expired': 'danger',
+    }
+    return label_map[status], tone_map[status]
+
+
+def _get_session_snapshot(session, students=None, submissions=None):
+    student_list = students if students is not None else _get_students()
+    submission_list = submissions if submissions is not None else _get_session_submissions(session.id)
+    submitted_student_ids = {item.student_id for item in submission_list}
+    pending_students = [student for student in student_list if student.id not in submitted_student_ids]
+
+    if not pending_students:
+        status = 'completed'
+    elif session.deadline_at < datetime.now():
+        status = 'expired'
+    else:
+        status = 'ongoing'
+
+    status_label, status_tone = _session_status(status)
+    return {
+        'students': student_list,
+        'submissions': submission_list,
+        'pending_students': pending_students,
+        'status': status,
+        'status_label': status_label,
+        'status_tone': status_tone,
+    }
+
+
+def _apply_session_summary(payload, snapshot):
+    payload['student_count'] = len(snapshot['students'])
+    payload['submitted_count'] = len(snapshot['submissions'])
+    payload['pending_count'] = len(snapshot['pending_students'])
+    payload['status'] = snapshot['status']
+    payload['status_label'] = snapshot['status_label']
+    payload['status_tone'] = snapshot['status_tone']
+    payload['is_active'] = snapshot['status'] == 'ongoing'
+    payload['is_current'] = payload['is_active']
+
+
+def _session_has_pending_students(session, students=None, submissions=None):
+    student_list = students if students is not None else _get_students()
+    if not student_list:
+        return False
+
+    snapshot = _get_session_snapshot(session, student_list, submissions)
+    return bool(snapshot['pending_students'])
+
+
 def _get_current_session(now=None):
     current_time = now or datetime.now()
-    return AttendanceSession.query.filter(
+    sessions = AttendanceSession.query.filter(
         AttendanceSession.deadline_at >= current_time,
-    ).order_by(AttendanceSession.created_at.desc()).first()
+    ).order_by(AttendanceSession.created_at.desc()).all()
+
+    for session in sessions:
+        if _session_has_pending_students(session):
+            return session
+    return None
 
 
 def _build_student_session_payload(session, student):
-    submission = AttendanceSessionSubmission.query.filter_by(
-        session_id=session.id,
-        student_id=student.id,
-    ).first()
+    snapshot = _get_session_snapshot(session)
+    submission = next((item for item in snapshot['submissions'] if item.student_id == student.id), None)
     payload = session.to_dict()
+    _apply_session_summary(payload, snapshot)
     payload['has_submitted'] = submission is not None
     payload['submission'] = submission.to_dict() if submission else None
     return payload
 
 
-def _build_admin_session_payload(session):
-    students = User.query.filter_by(role='employee').order_by(User.created_at.asc()).all()
-    submissions = AttendanceSessionSubmission.query.filter_by(session_id=session.id).order_by(
-        AttendanceSessionSubmission.submitted_at.asc(),
-    ).all()
-    submitted_student_ids = {item.student_id for item in submissions}
-    pending_students = [student.to_dict() for student in students if student.id not in submitted_student_ids]
-
+def _build_admin_session_payload(session, include_people=True):
+    snapshot = _get_session_snapshot(session)
     payload = session.to_dict()
-    payload['student_count'] = len(students)
-    payload['submitted_count'] = len(submissions)
-    payload['pending_count'] = len(pending_students)
-    payload['submissions'] = [item.to_dict() for item in submissions]
-    payload['pending_students'] = pending_students
+    _apply_session_summary(payload, snapshot)
+    if include_people:
+        payload['submissions'] = [item.to_dict() for item in snapshot['submissions']]
+        payload['pending_students'] = [student.to_dict() for student in snapshot['pending_students']]
     return payload
 
 
@@ -180,6 +245,9 @@ def create_session():
     if error:
         return error
 
+    if not _get_students():
+        return _json_error('当前没有学生账号，无法发起考勤', 400)
+
     data = request.get_json(silent=True) or {}
     try:
         deadline_at = _parse_datetime_value(data.get('deadline_at'), 'deadline_at')
@@ -196,6 +264,21 @@ def create_session():
     db.session.add(session)
     db.session.commit()
     return jsonify({'message': '考勤已发起', 'session': _build_admin_session_payload(session)}), 201
+
+
+@attendance_bp.route('/sessions', methods=['GET'])
+def list_sessions():
+    user, error = _get_user()
+    if error:
+        return error
+
+    limit = request.args.get('limit', default=10, type=int) or 10
+    limit = max(1, min(limit, 50))
+    sessions = AttendanceSession.query.order_by(AttendanceSession.created_at.desc()).limit(limit).all()
+
+    if user.role == 'admin':
+        return jsonify({'sessions': [_build_admin_session_payload(session, include_people=False) for session in sessions]})
+    return jsonify({'sessions': [_build_student_session_payload(session, user) for session in sessions]})
 
 
 @attendance_bp.route('/sessions/current', methods=['GET'])

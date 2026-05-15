@@ -100,6 +100,79 @@
   background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 100%);
 }
 
+.clock-session__picker-grid {
+  margin-top: 24rpx;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18rpx;
+}
+
+.clock-picker-input {
+  display: flex;
+  align-items: center;
+}
+
+.clock-session__teacher-panel {
+  margin-top: 24rpx;
+  padding-top: 24rpx;
+  border-top: 2rpx solid #eef2f7;
+}
+
+.clock-session__summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18rpx;
+}
+
+.clock-session__summary--counts {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 18rpx;
+}
+
+.clock-session__stat {
+  padding: 22rpx;
+  border-radius: 22rpx;
+  background: #f5f8fc;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.clock-session__stat--count {
+  align-items: center;
+  text-align: center;
+}
+
+.clock-session__group {
+  margin-top: 24rpx;
+}
+
+.clock-session__chips {
+  margin-top: 16rpx;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.clock-session__chip {
+  padding: 12rpx 20rpx;
+  border-radius: 999rpx;
+  background: #edf4ff;
+  color: #2255ff;
+  font-size: 22rpx;
+  line-height: 1;
+}
+
+.clock-session__chip--pending {
+  background: #fff3de;
+  color: #a85b00;
+}
+
+.clock-session__empty {
+  margin-top: 24rpx;
+  padding: 36rpx 24rpx;
+}
+
 .clock-session__meta {
   margin-top: 24rpx;
   display: grid;
@@ -140,6 +213,44 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.clock-history-item {
+  margin-top: 24rpx;
+  padding-top: 24rpx;
+  border-top: 2rpx solid #eef2f7;
+}
+
+.clock-history-item:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.clock-history-item__top {
+  align-items: flex-start;
+}
+
+.clock-history-item__title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.clock-history-item__meta,
+.clock-history-item__stat,
+.clock-history-item__desc {
+  display: block;
+  margin-top: 10rpx;
+  color: #7d8aa2;
+  font-size: 24rpx;
+}
+
+.clock-history-item__stats {
+  margin-top: 6rpx;
+}
+
+.clock-history-item__desc {
+  color: #465467;
 }
 
 .clock-record__title,

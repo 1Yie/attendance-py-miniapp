@@ -38,67 +38,6 @@
   font-weight: 600;
 }
 
-.admin-empty-state {
-  margin-top: 24rpx;
-  padding: 36rpx 24rpx;
-}
-
-.admin-session {
-  margin-top: 24rpx;
-  padding-top: 24rpx;
-  border-top: 2rpx solid #eef2f7;
-}
-
-.admin-session__summary {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18rpx;
-}
-
-.admin-session__summary--counts {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: 18rpx;
-}
-
-.admin-session__stat {
-  padding: 22rpx;
-  border-radius: 22rpx;
-  background: #f5f8fc;
-  display: flex;
-  flex-direction: column;
-  gap: 10rpx;
-}
-
-.admin-session__stat--count {
-  align-items: center;
-  text-align: center;
-}
-
-.admin-session__group {
-  margin-top: 24rpx;
-}
-
-.admin-session__chips {
-  margin-top: 16rpx;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
-}
-
-.admin-session__chip {
-  padding: 12rpx 20rpx;
-  border-radius: 999rpx;
-  background: #edf4ff;
-  color: #2255ff;
-  font-size: 22rpx;
-  line-height: 1;
-}
-
-.admin-session__chip--pending {
-  background: #fff3de;
-  color: #a85b00;
-}
-
 .admin-action-row {
   margin-top: 24rpx;
   display: flex;
